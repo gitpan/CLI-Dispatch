@@ -5,7 +5,7 @@ use warnings;
 use Getopt::Long ();
 use String::CamelCase;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # you may want to override these three methods.
 
@@ -17,8 +17,14 @@ sub get_command {
   my $class = shift;
 
   my $command = shift @ARGV || $class->default_command;
-     $command = String::CamelCase::camelize( $command );
-     $command =~ tr/a-zA-Z0-9_//cd;
+  return $class->convert_command($command);
+}
+
+sub convert_command {
+  my ($class, $command) = @_;
+
+  $command = String::CamelCase::camelize( $command );
+  $command =~ tr/a-zA-Z0-9_//cd;
   return $command;
 }
 
@@ -85,6 +91,10 @@ sub run {
   my %local   = $class->get_options( $command->options );
 
   $command->set_options( %global, %local, _namespace => $namespace );
+
+  if ( $command->isa('CLI::Dispatch::Help') and @ARGV ) {
+    $ARGV[0] = $class->convert_command($ARGV[0]);
+  }
 
   $command->run(@ARGV);
 }
@@ -210,6 +220,10 @@ If you have only one command, and you don't want to specify it every time when y
   sub get_command { 'JustDoThis' }
 
 Then, when you run the script, C<YourScript::JustDoThis> command will always be executed (and the first argument won't be considered as a command).
+
+=head2 convert_command
+
+takes a command name, transforms it if necessary (camelize by default), and returns the result.
 
 =head2 get_options
 

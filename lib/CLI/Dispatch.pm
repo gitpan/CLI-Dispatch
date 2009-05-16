@@ -2,10 +2,11 @@ package CLI::Dispatch;
 
 use strict;
 use warnings;
+use Carp;
 use Getopt::Long ();
 use String::CamelCase;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 # you may want to override these three methods.
 
@@ -73,12 +74,25 @@ sub _load_command {
   my $package = $namespace.'::'.$command;
   eval "require $package";
   return $package->new unless $@;
-  if ( $@ =~ /Can't locate/ ) {
+
+  my $file = _package_file($package);
+  if ( $@ =~ /Can't locate $file/ ) {
     $package = __PACKAGE__.'::'.$command;
     eval "require $package";
     return $package->new unless $@;
+
+    $file = _package_file($package);
+    return if $@ =~ /Can't locate $file/;
   }
-  return;
+  croak $@;
+}
+
+sub _package_file {
+  my $package = shift;
+
+  $package =~ s{::}{/}g;
+  $package .= '\.(?:pm|pod)';
+  $package;
 }
 
 sub run {

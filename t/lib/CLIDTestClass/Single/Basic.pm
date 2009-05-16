@@ -10,7 +10,7 @@ sub no_args : Test {
 
   my $ret = $class->dispatch();
 
-  ok $ret eq 'no args', $class->message('dispatch succeeded');
+  ok $ret eq 'no args', $class->message("dispatch succeeded: $ret");
 }
 
 sub with_args : Test {
@@ -18,7 +18,7 @@ sub with_args : Test {
 
   my $ret = $class->dispatch(qw( one two three ));
 
-  ok $ret eq 'onetwothree', $class->message('dispatch succeeded');
+  ok $ret eq 'onetwothree', $class->message("dispatch succeeded: $ret");
 }
 
 sub with_options : Test {
@@ -26,7 +26,7 @@ sub with_options : Test {
 
   my $ret = $class->dispatch(qw( --option=hello ));
 
-  ok $ret eq 'hello', $class->message('dispatch succeeded');
+  ok $ret eq 'hello', $class->message("dispatch succeeded: $ret");
 }
 
 sub dispatch {

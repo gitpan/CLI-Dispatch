@@ -6,7 +6,7 @@ use Carp;
 use Getopt::Long ();
 use String::CamelCase;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 # you may want to override these three methods.
 
@@ -109,6 +109,8 @@ sub run {
   if ( $command->isa('CLI::Dispatch::Help') and @ARGV ) {
     $ARGV[0] = $class->convert_command($ARGV[0]);
   }
+
+  $command->check if $command->can('check');
 
   $command->run(@ARGV);
 }

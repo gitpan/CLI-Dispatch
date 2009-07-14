@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               CLI-Dispatch
-version:            0.04
+version:            0.05
 abstract:           simple CLI dispatcher
 author:
     - Kenichi Ishigaki <ishigaki@cpan.org>
@@ -11,6 +11,7 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
+    Class::Unload:        0
     Encode:               0
     File::Spec:           0
     Getopt::Long:         0

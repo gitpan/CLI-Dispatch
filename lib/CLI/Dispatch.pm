@@ -6,7 +6,7 @@ use Carp;
 use Getopt::Long ();
 use String::CamelCase;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 # you may want to override these three methods.
 
@@ -44,7 +44,7 @@ sub get_options {
 }
 
 sub load_command {
-  my ($class, $namespace, $help) = @_;
+  my ($class, $namespaces, $help) = @_;
 
   my $command = $class->get_command;
 
@@ -53,12 +53,12 @@ sub load_command {
     $command = 'Help';
   }
 
-  my $instance = $class->_load_command($namespace, $command);
+  my $instance = $class->_load_command($namespaces, $command);
   return $instance if $instance;
 
   # fallback to help (maybe the command is just a pod)
   unshift @ARGV, $command;
-  $instance = $class->_load_command($namespace, 'Help');
+  $instance = $class->_load_command($namespaces, 'Help');
   return $instance if $instance;
 
   # this shouldn't happen
@@ -69,24 +69,25 @@ sub load_command {
 }
 
 sub _load_command {
-  my ($class, $namespace, $command) = @_;
+  my ($class, $namespaces, $command) = @_;
 
-  my $package = $namespace.'::'.$command;
-  return $package->new if $package->can('new');
+  foreach my $namespace (@$namespaces) {
+    my $package = $namespace.'::'.$command;
+    return $package->new if $package->can('new');
 
-  eval "require $package";
-  return $package->new unless $@;
-
-  my $file = _package_file($package);
-  if ( $@ =~ /Can't locate $file/ ) {
-    $package = __PACKAGE__.'::'.$command;
     eval "require $package";
     return $package->new unless $@;
 
-    $file = _package_file($package);
-    return if $@ =~ /Can't locate $file/;
+    my $file = _package_file($package);
+    next if $@ =~ /Can't locate $file/;
+    croak $@;
   }
-  croak $@;
+
+  if ($command eq 'Help') {
+    require CLI::Dispatch::Help;
+    return CLI::Dispatch::Help->new;
+  }
+  return;
 }
 
 sub _package_file {
@@ -98,15 +99,17 @@ sub _package_file {
 }
 
 sub run {
-  my ($class, $namespace) = @_;
+  my ($class, @namespaces) = @_;
 
-  $namespace ||= $class;
+  if (!grep { $_ ne $class } @namespaces) {
+    push @namespaces, $class;
+  }
 
   my %global  = $class->get_options( $class->options );
-  my $command = $class->load_command( $namespace, $global{help} );
+  my $command = $class->load_command( \@namespaces, $global{help} );
   my %local   = $class->get_options( $command->options );
 
-  $command->set_options( %global, %local, _namespace => $namespace );
+  $command->set_options( %global, %local, _namespaces => \@namespaces );
 
   if ( $command->isa('CLI::Dispatch::Help') and @ARGV ) {
     $ARGV[0] = $class->convert_command($ARGV[0]);
@@ -192,7 +195,7 @@ CLI::Dispatch - simple CLI dispatcher
     sub run {
       my ($self, @args) = @_;
 
-      if ( $self->{url} ) {
+      if ( $self->{uri} ) {
         require URI::Escape;
         print URI::Escape::uri_escape($args[0]);
       }
@@ -245,7 +248,7 @@ See L<CLI::Dispatch::Command> to know how to write an actual command class.
 
 =head2 run
 
-takes an optional namespace, and parses @ARGV to load an appropriate command
+takes optional namespaces, and parses @ARGV to load an appropriate command
 class, and run it with options that are also parsed from @ARGV. As shown in the
 SYNOPSIS, you don't need to pass anything when you create a dispatcher
 subclass, and vice versa.
@@ -277,7 +280,13 @@ executed (and the first argument won't be considered as a command).
 =head2 convert_command
 
 takes a command name, transforms it if necessary (camelize by default), and
-returns the result.
+returns the result. You may also want to override this to convert short aliases
+for long command names.
+
+  sub convert_command {
+    my $command = shift->SUPER::convert_command(@_);
+    return ($command eq 'Fcgi') ? 'FastCGI' : $command;
+  }
 
 =head2 get_options
 

@@ -1,30 +1,30 @@
-package CLIDTestClass::Error::Help;
+package CLIDTestClass::Multi::Help;
 
 use strict;
 use warnings;
 use Test::Classy::Base;
-use CLIDTest::Error;
+use CLI::Dispatch;
 use File::Spec;
 
-sub list : Tests(5) {
+sub list : Tests(6) {
   my $class = shift;
 
   $class->_command_list;
 }
 
-sub list_with_help_command : Tests(5) {
+sub list_with_help_command : Tests(6) {
   my $class = shift;
 
   $class->_command_list(qw( help ));
 }
 
-sub help_of_missing_file : Tests(5) {
+sub help_of_missing_file : Tests(6) {
   my $class = shift;
 
   $class->_command_list(qw( help nothing ));
 }
 
-sub unknown_command : Tests(5) {
+sub unknown_command : Tests(6) {
   my $class = shift;
 
   $class->_command_list(qw( unknown_command ));
@@ -48,11 +48,12 @@ sub _command_list {
   my $ret = $class->dispatch(@_);
 
   my %map = (
+    dump_me => 'dump_me\s+- dump me',
     help    => 'help\s+-',
     install => 'install\s+- how to install',
-    simple  => 'simple\s+- alternative text for simple command \[disabled: compile error\]',
-    args    => 'with_args\s+- args test \[disabled: compile error\]',
-    options => 'with_options\s+- option test \[disabled: compile error\]',
+    simple  => 'simple\s+- alternative text for simple command',
+    args    => 'with_args\s+- args test',
+    options => 'with_options\s+- option test',
   );
 
   foreach my $key ( keys %map ) {
@@ -79,7 +80,7 @@ sub dispatch {
   my $stdout = select($null);
 
   my $ret;
-  eval { $ret = CLIDTest::Error->run };
+  eval { $ret = CLI::Dispatch->run(qw/CLIDTest::More CLIDTest::Single/) };
 
   select($stdout);
 

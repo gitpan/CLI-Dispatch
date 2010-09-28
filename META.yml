@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               CLI-Dispatch
-version:            0.09
+version:            0.10
 abstract:           simple CLI dispatcher
 author:
     - Kenichi Ishigaki <ishigaki@cpan.org>
@@ -23,6 +23,7 @@ requires:
     Test::Classy:         0.04
     Test::More:           0.47
     Test::UseAllModules:  0.09
+    Try::Tiny:            0
 no_index:
     directory:
         - t

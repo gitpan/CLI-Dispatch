@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               CLI-Dispatch
-version:            0.10
+version:            0.11_01
 abstract:           simple CLI dispatcher
 author:
     - Kenichi Ishigaki <ishigaki@cpan.org>

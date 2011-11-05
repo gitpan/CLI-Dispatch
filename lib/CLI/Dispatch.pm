@@ -7,11 +7,11 @@ use Getopt::Long ();
 use String::CamelCase;
 use Try::Tiny;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 # you may want to override these three methods.
 
-sub options {qw( help|h|? verbose|v )}
+sub options {qw( help|h|? verbose|v debug logfilter=s )}
 
 sub default_command { 'help' }
 

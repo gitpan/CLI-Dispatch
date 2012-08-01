@@ -58,4 +58,5 @@ t/lib/CLIDTestClass/Multi/Basic.pm
 t/lib/CLIDTestClass/Multi/Help.pm
 t/lib/CLIDTestClass/Single/Basic.pm
 t/lib/CLIDTestClass/Single/Help.pm
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

@@ -32,4 +32,4 @@ requires:
   Test::More: 0.47
   Test::UseAllModules: 0.09
   Try::Tiny: 0
-version: 0.16
+version: 0.17
